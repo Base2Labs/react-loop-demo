@@ -12,9 +12,8 @@ import {
   YAxis,
 } from "recharts";
 import type { ChartWidget } from "shared";
-import { ACCOUNTS, DATA_RANGE, TRANSACTIONS } from "shared";
+import { ACCOUNTS, DATA_RANGE, TRANSACTIONS, resolveAccounts } from "shared";
 import { balanceSeries, spendingSeries, type SeriesRow } from "../data/series";
-import { resolveAccounts } from "../data/balances";
 import { CHART_CHROME, colorForAccountName, colorForCategory, compactCurrency, currency } from "./palette";
 
 export function ChartCard({ widget }: { widget: ChartWidget }) {

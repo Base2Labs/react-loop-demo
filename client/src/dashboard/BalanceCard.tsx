@@ -1,6 +1,5 @@
 import type { BalanceWidget } from "shared";
-import { ACCOUNTS, TRANSACTIONS } from "shared";
-import { currentBalance, resolveAccounts } from "../data/balances";
+import { ACCOUNTS, TRANSACTIONS, currentBalance, resolveAccounts } from "shared";
 import { currency } from "./palette";
 
 export function BalanceCard({ widget }: { widget: BalanceWidget }) {

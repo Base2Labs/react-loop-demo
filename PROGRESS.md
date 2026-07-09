@@ -9,10 +9,13 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 ## Status
 
-- **Current milestone:** 3 — Agent core
-- **Next up:** OpenRouter client (`server/src/llm/openrouter.ts`), tool registry
-  + executors (`server/src/agent/tools/`), the ReAct loop, and a CLI harness to
-  exercise it before the UI is wired
+- **Current milestone:** 4 — Wire the UI
+- **Next up:** `/api/chat` NDJSON endpoint + `/api/models` + `/api/reset` on the
+  server; client stream reader, LoopEvent reducer, live dashboard + prompt bar
+  + model picker
+- **Blocked on user:** live CLI test of the agent needs `OPENROUTER_API_KEY`
+  in `server/.env` (copy from `.env.example`). Everything else is verified with
+  a scripted fake LLM.
 
 ## Milestones
 
@@ -25,8 +28,12 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
       *(verified: typecheck + vite build clean; selector sanity script passes,
       incl. last-chart-bucket == currentBalance invariant; demo spec renders all
       three widget types — visual pass still worth doing in a browser)*
-- [ ] **3. Agent core** — OpenRouter client, tool registry + executors, ReAct
+- [x] **3. Agent core** — OpenRouter client, tool registry + executors, ReAct
       loop; exercised via a CLI script before the UI is wired
+      *(verified with a scripted fake LLM: schema serialization, happy-path /
+      semantic-error / schema-error executions, ask_user suspend + resume,
+      every tool_call answered in history. Live model run still pending — needs
+      OPENROUTER_API_KEY; then: `npm run cli --workspace server -- [model]`)*
 - [ ] **4. Wire the UI** — prompt bar → `/api/chat` → streamed LoopEvents →
       live dashboard updates per tool call; model picker
 - [ ] **5. Clarifying questions** — `ask_user` end-to-end with option chips
@@ -51,6 +58,15 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 - **2026-07-09** — Chart series colors use the validated CVD-safe categorical
   palette (fixed slot order); color follows the entity (account/category), never
   its position in the current selection.
+- **2026-07-09** — Curated model list checked against the live OpenRouter
+  catalog (tool-capable): default `anthropic/claude-sonnet-5`, plus
+  sonnet-4.6, gpt-5.5, gpt-5.4-mini, gemini-3.5-flash, llama-4-maverick.
+- **2026-07-09** — Loop branches on `message.tool_calls` presence rather than
+  `finish_reason` (some models report "stop" while still emitting tool calls).
+  `spec_updated` only fires when the spec actually changed.
+- **2026-07-09** — ask_user suspension: ordinary tool calls in the same turn are
+  executed first so every tool_call id has a result in history; duplicate
+  ask_user calls get an immediate "one question at a time" result.
 
 ## Notes / gotchas
 

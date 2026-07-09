@@ -1,4 +1,4 @@
-import type { Account, Transaction } from "shared";
+import type { Account, Transaction } from "./bank";
 
 /** Current balance = opening balance + every transaction on the account. */
 export function currentBalance(account: Account, txs: Transaction[]): number {

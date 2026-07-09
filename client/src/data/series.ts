@@ -1,5 +1,5 @@
 import type { Account, ChartWidget, DateRange, Transaction } from "shared";
-import { resolveAccounts } from "./balances";
+import { resolveAccounts } from "shared";
 
 /**
  * Chart selectors: turn transactions into Recharts-shaped rows —
