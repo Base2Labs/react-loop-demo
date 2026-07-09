@@ -1,0 +1,161 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Section cards — the named color drives the accent bar and header tint. */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.section-card.color-blue   { --section-accent: #2563eb; --section-tint: #eff4fe; }
+.section-card.color-green  { --section-accent: #15803d; --section-tint: #ecf7f0; }
+.section-card.color-amber  { --section-accent: #b45309; --section-tint: #fdf5e7; }
+.section-card.color-rose   { --section-accent: #be123c; --section-tint: #fdeef2; }
+.section-card.color-violet { --section-accent: #6d28d9; --section-tint: #f4f0fd; }
+.section-card.color-slate  { --section-accent: #475569; --section-tint: #f1f4f8; }
+
+.section-header {
+  padding: 0.7rem 1rem;
+  background: var(--section-tint);
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid var(--section-accent);
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--section-accent);
+}
+
+.section-body {
+  padding: 1rem;
+}
+
+/* Balance widgets */
+.balance-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem 0;
+}
+
+.balance-hero .balance-amount {
+  font-size: 2.2rem;
+  font-weight: 650;
+}
+
+.balance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.balance-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.balance-name {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.balance-amount {
+  font-size: 1.3rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-amount.negative {
+  color: #dc2626;
+}
+
+.balance-caption {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+/* Transactions table */
+.tx-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.tx-table th {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.tx-table td {
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tx-table .amount {
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tx-table .amount.negative {
+  color: #dc2626;
+}
+
+.category-pill {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.tx-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.tx-pager {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tx-pager button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+
+.tx-pager button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

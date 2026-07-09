@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { Dashboard } from "./dashboard/Dashboard";
+import { DEMO_SPEC } from "./demoSpec";
 
 /**
  * App shell for the demo: header, dashboard area, prompt bar.
- * Milestone 1: static placeholders + a health check proving the
- * client → server wiring works. The real pieces land in later milestones.
+ * Milestone 2: dashboard renders a hard-coded spec — proving the rendering
+ * engine works with no AI involved. The agent takes over in milestone 4.
  */
 export default function App() {
   const [serverUp, setServerUp] = useState<boolean | null>(null);
@@ -25,9 +27,7 @@ export default function App() {
       </header>
 
       <main className="dashboard-area">
-        <p className="placeholder">
-          Your dashboard will appear here. Describe it in the prompt below.
-        </p>
+        <Dashboard spec={DEMO_SPEC} />
       </main>
 
       <footer className="prompt-bar">

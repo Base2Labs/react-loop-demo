@@ -9,9 +9,10 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 ## Status
 
-- **Current milestone:** 2 — Static dashboard
-- **Next up:** seeded mock bank data (`server/src/data/mockBank.ts`), client
-  selectors, and widget renderers driven by a hard-coded `DashboardSpec`
+- **Current milestone:** 3 — Agent core
+- **Next up:** OpenRouter client (`server/src/llm/openrouter.ts`), tool registry
+  + executors (`server/src/agent/tools/`), the ReAct loop, and a CLI harness to
+  exercise it before the UI is wired
 
 ## Milestones
 
@@ -19,8 +20,11 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
       `.env.example`, dev script running client + server together
       *(verified: `npm run dev` boots both; `/api/health` works direct and via
       Vite proxy; `npm run typecheck` clean)*
-- [ ] **2. Static dashboard** — mock bank data + renderer driven by a hard-coded
+- [x] **2. Static dashboard** — mock bank data + renderer driven by a hard-coded
       `DashboardSpec` (widgets & selectors work with no AI involved)
+      *(verified: typecheck + vite build clean; selector sanity script passes,
+      incl. last-chart-bucket == currentBalance invariant; demo spec renders all
+      three widget types — visual pass still worth doing in a browser)*
 - [ ] **3. Agent core** — OpenRouter client, tool registry + executors, ReAct
       loop; exercised via a CLI script before the UI is wired
 - [ ] **4. Wire the UI** — prompt bar → `/api/chat` → streamed LoopEvents →
@@ -40,6 +44,13 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
   ~250 — split along natural seams when exceeded.
 - **2026-07-09** — Tracking progress in this file instead of Jira; commit it
   with each work session.
+- **2026-07-09** — Mock bank data lives in `shared/` (not `server/` as the plan
+  sketched): the client derives all widget data locally and the server's
+  `get_data_catalog` tool reads the same dataset, so a shared seeded generator
+  avoids an API round trip and keeps both sides consistent by construction.
+- **2026-07-09** — Chart series colors use the validated CVD-safe categorical
+  palette (fixed slot order); color follows the entity (account/category), never
+  its position in the current selection.
 
 ## Notes / gotchas
 

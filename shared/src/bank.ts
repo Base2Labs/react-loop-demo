@@ -9,15 +9,18 @@ export interface Account {
   openingBalance: number;
 }
 
-export type Category =
-  | "groceries"
-  | "dining"
-  | "rent"
-  | "utilities"
-  | "transport"
-  | "entertainment"
-  | "income"
-  | "transfers";
+export const CATEGORIES = [
+  "groceries",
+  "dining",
+  "rent",
+  "utilities",
+  "transport",
+  "entertainment",
+  "income",
+  "transfers",
+] as const;
+
+export type Category = (typeof CATEGORIES)[number];
 
 export interface Transaction {
   id: string;
