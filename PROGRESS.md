@@ -9,12 +9,10 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 ## Status
 
-- **Current milestone:** 7 — Polish & docs (not started)
-- **Next up (resume here):** README.md — the ReAct explainer, how-to-run, and
-  the guided code tour (center on `agent/loop.ts` and `agent/tools/`). Then a
-  polish pass: confirm Reset clears the debug panel state sensibly, check
-  error surfaces (missing key, network drop mid-stream), and give the loop
-  guard a visible treatment in the panel.
+- **All 7 milestones complete.** The project is done pending any user feedback.
+- **Next up:** nothing scheduled. Possible follow-ons if wanted: multi-session
+  support (id per browser tab), spec undo/revert, more models in the curated
+  list.
 - **Blocked on user:** nothing. `OPENROUTER_API_KEY` added 2026-07-09; live
   runs verified (see below). Stub-based verification recipe remains in
   `.claude/skills/verify/SKILL.md` for tokenless regression passes.
@@ -59,8 +57,14 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
       note, red error result + recovery, ask_user turn boundary, usage footers,
       History tab fetching `/api/history`, Spec tab, localStorage persistence
       of the toggle across reloads)*
-- [ ] **7. Polish & docs** — reset, error surfaces, loop guard, README with
+- [x] **7. Polish & docs** — reset, error surfaces, loop guard, README with
       ReAct explainer + code tour
+      *(README written: quick start, ReAct mapping, turn anatomy, tool
+      vocabulary, debug-panel guide, file-by-file code tour, design notes.
+      Fixed the cli.ts EOF crash — piped input now exits cleanly. History tab
+      refetches after Reset instead of showing stale messages; both verified
+      at runtime against the stub. Loop guard already surfaces as a red error
+      outcome in the panel; missing-key error surface verified in M4)*
 
 ## Decision log
 
@@ -100,6 +104,5 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 - The debug panel's Loop tab is client-side state — it empties on page reload
   (History and Spec tabs re-fetch from the server and survive).
-- **M7 fix:** `cli.ts` crashes with `ERR_USE_AFTER_CLOSE` when stdin hits EOF
-  (e.g. piped input): readline closes during a long turn and the next
-  `rl.question` throws. Exit the loop cleanly when the interface closes.
+- `cli.ts` treats a failed `rl.question` as EOF and exits cleanly (piped
+  input used to crash with `ERR_USE_AFTER_CLOSE` — fixed in M7).

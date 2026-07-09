@@ -21,7 +21,7 @@ interface Props {
 export function DebugPanel({ events, spec, running }: Props) {
   const [tab, setTab] = useState<Tab>("loop");
   const turns = useMemo(() => groupEvents(events), [events]);
-  const history = useHistory(tab, running);
+  const history = useHistory(tab, running, events.length);
 
   return (
     <aside className="debug-panel">
@@ -66,8 +66,8 @@ export function DebugPanel({ events, spec, running }: Props) {
 const outcomeLabel = { summary: "✓", question: "?", error: "✗" } as const;
 
 /** The exact `messages` array the server sends to the API — fetched when the
- * tab opens and again when a turn finishes, so it tracks the conversation. */
-function useHistory(tab: Tab, running: boolean): unknown {
+ * tab opens, when a turn finishes, and after a reset empties the event log. */
+function useHistory(tab: Tab, running: boolean, eventCount: number): unknown {
   const [history, setHistory] = useState<unknown>(null);
 
   useEffect(() => {
@@ -84,7 +84,7 @@ function useHistory(tab: Tab, running: boolean): unknown {
     return () => {
       stale = true;
     };
-  }, [tab, running]);
+  }, [tab, running, eventCount]);
 
   return history;
 }

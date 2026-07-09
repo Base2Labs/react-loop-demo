@@ -63,7 +63,13 @@ async function main(): Promise<void> {
   console.log(dim("commands: /reset  /spec  /model <id>  /exit\n"));
 
   while (true) {
-    const input = (await rl.question("you> ")).trim();
+    let line: string;
+    try {
+      line = await rl.question("you> ");
+    } catch {
+      break; // stdin closed (EOF) — e.g. piped input ran out mid-turn
+    }
+    const input = line.trim();
     if (!input) continue;
     if (input === "/exit") break;
     if (input === "/reset") {
