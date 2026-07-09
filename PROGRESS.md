@@ -15,10 +15,17 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
   polish pass: confirm Reset clears the debug panel state sensibly, check
   error surfaces (missing key, network drop mid-stream), and give the loop
   guard a visible treatment in the panel.
-- **Blocked on user:** a live model run still needs `OPENROUTER_API_KEY` in
-  `server/.env` (copy from `.env.example`). Everything through M6 is verified
-  end-to-end in a real browser against a scripted stub LLM — see
-  `.claude/skills/verify/SKILL.md` for the recipe.
+- **Blocked on user:** nothing. `OPENROUTER_API_KEY` added 2026-07-09; live
+  runs verified (see below). Stub-based verification recipe remains in
+  `.claude/skills/verify/SKILL.md` for tokenless regression passes.
+- **Live verification (2026-07-09, key in place):**
+  - CLI: catalog → upsert_section → set_balance_widget → summary with real
+    reasoning + usage (claude-sonnet-5).
+  - Browser: ambiguous "Show my checking balance" → live clarifying question
+    with 3 option chips → chip answer resumed the loop → dashboard rendered;
+    debug panel showed real reasoning (mixed exposed/hidden) and token usage.
+  - Model picker: switched to openai/gpt-5.4-mini mid-conversation; iteration
+    cards tagged the new model; section added on top of the existing session.
 
 ## Milestones
 
@@ -93,3 +100,6 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 - The debug panel's Loop tab is client-side state — it empties on page reload
   (History and Spec tabs re-fetch from the server and survive).
+- **M7 fix:** `cli.ts` crashes with `ERR_USE_AFTER_CLOSE` when stdin hits EOF
+  (e.g. piped input): readline closes during a long turn and the next
+  `rl.question` throws. Exit the loop cleanly when the interface closes.
