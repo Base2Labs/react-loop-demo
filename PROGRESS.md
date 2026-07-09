@@ -9,9 +9,19 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 ## Status
 
-- **Current milestone:** 6 — Debug panel
-- **Next up:** DebugPanel (iteration cards from the LoopEvent log), raw-history
-  view, spec inspector, header toggle persisted in localStorage
+- **Current milestone:** 6 — Debug panel (just started)
+- **Done so far in M6:** `GET /api/history` endpoint (returns the session's raw
+  `messages` array + `pendingAsk`) — the data source for the raw-history tab.
+- **Next up (resume here):** client `debug/` components:
+  1. `groupEvents.ts` — fold the LoopEvent log into turns → iteration groups
+     (a `request_start` with `iteration === 1` starts a new turn)
+  2. `IterationCard.tsx` — model tag, reasoning (or "model did not expose
+     reasoning"), tool calls w/ pretty JSON, error results in red, usage footer
+  3. `DebugPanel.tsx` — slide-in right panel, three tabs: Loop / History
+     (fetch `/api/history`) / Spec (current DashboardSpec JSON)
+  4. `JsonView.tsx` (shared `<pre>` renderer) + `debug.css`
+  5. App.tsx: "Debug" header toggle persisted in localStorage; layout becomes
+     `.app-main { display:flex }` with dashboard + 460px panel side by side
 - **Blocked on user:** live end-to-end run needs `OPENROUTER_API_KEY` in
   `server/.env` (copy from `.env.example`). Then verify: CLI
   (`npm run cli --workspace server`) and the browser flow incl. a clarifying

@@ -23,6 +23,12 @@ app.post("/api/reset", (_req, res) => {
   res.json({ ok: true });
 });
 
+// Debug panel's "raw history" tab: the exact messages array sent to the API.
+app.get("/api/history", (_req, res) => {
+  const { messages, pendingAsk } = getSession();
+  res.json({ messages, pendingAsk });
+});
+
 // The LLM client is created on first use so a missing API key surfaces as a
 // readable error event in the stream, not a crash at server start.
 let llmClient: OpenAI | null = null;
