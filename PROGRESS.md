@@ -9,13 +9,13 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 ## Status
 
-- **Current milestone:** 4 — Wire the UI
-- **Next up:** `/api/chat` NDJSON endpoint + `/api/models` + `/api/reset` on the
-  server; client stream reader, LoopEvent reducer, live dashboard + prompt bar
-  + model picker
-- **Blocked on user:** live CLI test of the agent needs `OPENROUTER_API_KEY`
-  in `server/.env` (copy from `.env.example`). Everything else is verified with
-  a scripted fake LLM.
+- **Current milestone:** 6 — Debug panel
+- **Next up:** DebugPanel (iteration cards from the LoopEvent log), raw-history
+  view, spec inspector, header toggle persisted in localStorage
+- **Blocked on user:** live end-to-end run needs `OPENROUTER_API_KEY` in
+  `server/.env` (copy from `.env.example`). Then verify: CLI
+  (`npm run cli --workspace server`) and the browser flow incl. a clarifying
+  question. Everything else is verified with a scripted fake LLM.
 
 ## Milestones
 
@@ -34,9 +34,15 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
       semantic-error / schema-error executions, ask_user suspend + resume,
       every tool_call answered in history. Live model run still pending — needs
       OPENROUTER_API_KEY; then: `npm run cli --workspace server -- [model]`)*
-- [ ] **4. Wire the UI** — prompt bar → `/api/chat` → streamed LoopEvents →
+- [x] **4. Wire the UI** — prompt bar → `/api/chat` → streamed LoopEvents →
       live dashboard updates per tool call; model picker
-- [ ] **5. Clarifying questions** — `ask_user` end-to-end with option chips
+      *(verified: /api/models, /api/reset, 400 on empty prompt, 409 guard for
+      concurrent turns, missing-key surfaces as a readable NDJSON error event;
+      typecheck + build clean)*
+- [x] **5. Clarifying questions** — `ask_user` end-to-end with option chips
+      *(built with M4: ChatStrip question notice + OptionChips, awaitingAnswer
+      placeholder, pendingAsk resume on the server. Suspend/resume structurally
+      tested with the fake LLM; live-model pass pending API key)*
 - [ ] **6. Debug panel** — iteration cards, raw history tab, spec inspector
 - [ ] **7. Polish & docs** — reset, error surfaces, loop guard, README with
       ReAct explainer + code tour

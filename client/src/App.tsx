@@ -1,42 +1,55 @@
-import { useEffect, useState } from "react";
 import { Dashboard } from "./dashboard/Dashboard";
-import { DEMO_SPEC } from "./demoSpec";
+import { ChatStrip } from "./chat/ChatStrip";
+import { PromptBar } from "./chat/PromptBar";
+import { ModelPicker, useModels } from "./chat/ModelPicker";
+import { useAgent } from "./state/useAgent";
+import "./chat/chat.css";
 
-/**
- * App shell for the demo: header, dashboard area, prompt bar.
- * Milestone 2: dashboard renders a hard-coded spec — proving the rendering
- * engine works with no AI involved. The agent takes over in milestone 4.
- */
 export default function App() {
-  const [serverUp, setServerUp] = useState<boolean | null>(null);
+  const { state, send, reset } = useAgent();
+  const { models, model, setModel } = useModels();
 
-  useEffect(() => {
-    fetch("/api/health")
-      .then((res) => res.json())
-      .then((body) => setServerUp(body.ok === true))
-      .catch(() => setServerUp(false));
-  }, []);
+  const submit = (prompt: string) => send(prompt, model);
 
   return (
     <div className="app">
       <header className="app-header">
         <h1>ReAct Loop Demo</h1>
-        <span className={`server-status ${serverUp ? "up" : "down"}`}>
-          {serverUp === null ? "connecting…" : serverUp ? "server up" : "server down"}
-        </span>
+        <div className="header-actions">
+          <button className="ghost-button" onClick={reset} disabled={state.running}>
+            Reset
+          </button>
+        </div>
       </header>
 
       <main className="dashboard-area">
-        <Dashboard spec={DEMO_SPEC} />
+        <Dashboard spec={state.spec} />
       </main>
 
-      <footer className="prompt-bar">
-        <input
-          type="text"
-          placeholder="e.g. Show my checking balance and a chart of grocery spending"
-          disabled
+      <footer className="prompt-area">
+        <ChatStrip
+          notice={state.notice}
+          running={state.running}
+          currentTool={state.currentTool}
+          onOption={submit}
         />
-        <button disabled>Send</button>
+        <div className="prompt-bar">
+          <ModelPicker
+            models={models}
+            model={model}
+            onChange={setModel}
+            disabled={state.running}
+          />
+          <PromptBar
+            disabled={state.running || !model}
+            placeholder={
+              state.awaitingAnswer
+                ? "Answer the agent's question…"
+                : "e.g. Show my checking balance and a chart of grocery spending"
+            }
+            onSend={submit}
+          />
+        </div>
       </footer>
     </div>
   );
