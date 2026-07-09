@@ -9,23 +9,16 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 ## Status
 
-- **Current milestone:** 6 — Debug panel (just started)
-- **Done so far in M6:** `GET /api/history` endpoint (returns the session's raw
-  `messages` array + `pendingAsk`) — the data source for the raw-history tab.
-- **Next up (resume here):** client `debug/` components:
-  1. `groupEvents.ts` — fold the LoopEvent log into turns → iteration groups
-     (a `request_start` with `iteration === 1` starts a new turn)
-  2. `IterationCard.tsx` — model tag, reasoning (or "model did not expose
-     reasoning"), tool calls w/ pretty JSON, error results in red, usage footer
-  3. `DebugPanel.tsx` — slide-in right panel, three tabs: Loop / History
-     (fetch `/api/history`) / Spec (current DashboardSpec JSON)
-  4. `JsonView.tsx` (shared `<pre>` renderer) + `debug.css`
-  5. App.tsx: "Debug" header toggle persisted in localStorage; layout becomes
-     `.app-main { display:flex }` with dashboard + 460px panel side by side
-- **Blocked on user:** live end-to-end run needs `OPENROUTER_API_KEY` in
-  `server/.env` (copy from `.env.example`). Then verify: CLI
-  (`npm run cli --workspace server`) and the browser flow incl. a clarifying
-  question. Everything else is verified with a scripted fake LLM.
+- **Current milestone:** 7 — Polish & docs (not started)
+- **Next up (resume here):** README.md — the ReAct explainer, how-to-run, and
+  the guided code tour (center on `agent/loop.ts` and `agent/tools/`). Then a
+  polish pass: confirm Reset clears the debug panel state sensibly, check
+  error surfaces (missing key, network drop mid-stream), and give the loop
+  guard a visible treatment in the panel.
+- **Blocked on user:** a live model run still needs `OPENROUTER_API_KEY` in
+  `server/.env` (copy from `.env.example`). Everything through M6 is verified
+  end-to-end in a real browser against a scripted stub LLM — see
+  `.claude/skills/verify/SKILL.md` for the recipe.
 
 ## Milestones
 
@@ -53,7 +46,12 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
       *(built with M4: ChatStrip question notice + OptionChips, awaitingAnswer
       placeholder, pendingAsk resume on the server. Suspend/resume structurally
       tested with the fake LLM; live-model pass pending API key)*
-- [ ] **6. Debug panel** — iteration cards, raw history tab, spec inspector
+- [x] **6. Debug panel** — iteration cards, raw history tab, spec inspector
+      *(verified in headless Chrome against a scripted stub LLM
+      (`OPENROUTER_BASE_URL` override): turn/iteration grouping, hidden-reasoning
+      note, red error result + recovery, ask_user turn boundary, usage footers,
+      History tab fetching `/api/history`, Spec tab, localStorage persistence
+      of the toggle across reloads)*
 - [ ] **7. Polish & docs** — reset, error surfaces, loop guard, README with
       ReAct explainer + code tour
 
@@ -84,6 +82,14 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
   executed first so every tool_call id has a result in history; duplicate
   ask_user calls get an immediate "one question at a time" result.
 
+- **2026-07-09** — `createLlmClient` honors `OPENROUTER_BASE_URL` so the whole
+  stack can be driven by a local scripted stub (no tokens spent). The browser
+  verification recipe lives in `.claude/skills/verify/SKILL.md`.
+- **2026-07-09** — Debug panel groups the flat event log by "`request_start`
+  with iteration 1 starts a new turn"; an ask_user resume therefore renders as
+  its own turn, which matches what the API actually saw.
+
 ## Notes / gotchas
 
-- (none yet)
+- The debug panel's Loop tab is client-side state — it empties on page reload
+  (History and Spec tabs re-fetch from the server and survive).

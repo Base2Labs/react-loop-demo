@@ -13,7 +13,9 @@ export function createLlmClient(): OpenAI {
     );
   }
   return new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
+    // Override exists for testing: point at a scripted stub server to
+    // exercise the whole stack without spending tokens.
+    baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
     apiKey,
     defaultHeaders: { "X-Title": "ReAct Loop Demo" },
   });

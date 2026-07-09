@@ -51,6 +51,12 @@ body {
   color: #dc2626;
 }
 
+.app-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
 .dashboard-area {
   flex: 1;
   overflow-y: auto;

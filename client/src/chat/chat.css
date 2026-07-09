@@ -81,7 +81,8 @@
   color: var(--text);
 }
 
-.ghost-button:hover {
+.ghost-button:hover,
+.ghost-button.active {
   border-color: var(--accent);
   color: var(--accent);
 }
