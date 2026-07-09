@@ -9,13 +9,16 @@ Copy `.env.example` to `server/.env` and set `OPENROUTER_API_KEY` before running
 
 ## Status
 
-- **Current milestone:** 1 — Scaffold
-- **Next up:** create npm workspaces (shared / server / client) and dev scripts
+- **Current milestone:** 2 — Static dashboard
+- **Next up:** seeded mock bank data (`server/src/data/mockBank.ts`), client
+  selectors, and widget renderers driven by a hard-coded `DashboardSpec`
 
 ## Milestones
 
-- [ ] **1. Scaffold** — workspaces, Vite React app, Express server, shared types,
+- [x] **1. Scaffold** — workspaces, Vite React app, Express server, shared types,
       `.env.example`, dev script running client + server together
+      *(verified: `npm run dev` boots both; `/api/health` works direct and via
+      Vite proxy; `npm run typecheck` clean)*
 - [ ] **2. Static dashboard** — mock bank data + renderer driven by a hard-coded
       `DashboardSpec` (widgets & selectors work with no AI involved)
 - [ ] **3. Agent core** — OpenRouter client, tool registry + executors, ReAct
