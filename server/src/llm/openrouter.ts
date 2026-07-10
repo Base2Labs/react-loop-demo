@@ -25,10 +25,12 @@ export const DEFAULT_MODEL = "openrouter/free";
 
 /** Curated picks for the UI dropdown — any OpenRouter model id also works. */
 export const CURATED_MODELS = [
+  DEFAULT_MODEL,
   "anthropic/claude-sonnet-5",
   "anthropic/claude-sonnet-4.6",
   "openai/gpt-5.5",
   "openai/gpt-5.4-mini",
   "google/gemini-3.5-flash",
   "meta-llama/llama-4-maverick",
+  "deepseek/deepseek-v3.1-terminus",
 ];
