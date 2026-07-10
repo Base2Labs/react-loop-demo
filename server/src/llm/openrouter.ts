@@ -21,7 +21,7 @@ export function createLlmClient(): OpenAI {
   });
 }
 
-export const DEFAULT_MODEL = "anthropic/claude-sonnet-5";
+export const DEFAULT_MODEL = "openrouter/free";
 
 /** Curated picks for the UI dropdown — any OpenRouter model id also works. */
 export const CURATED_MODELS = [
