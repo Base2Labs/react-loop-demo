@@ -1,4 +1,5 @@
 import "dotenv/config";
+import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
@@ -8,6 +9,7 @@ import { getSession, resetSession } from "./state/session";
 import { runAgentTurn } from "./agent/loop";
 
 const PORT = Number(process.env.PORT) || 3001;
+const SESSION_COOKIE = "sid";
 
 const app = express();
 app.use(express.json());
@@ -27,6 +29,32 @@ if (authUser && authPass) {
   });
 }
 
+// Assigns each browser its own session id so concurrent users don't share
+// one dashboard/conversation. Same-origin fetch sends cookies automatically,
+// so the client needs no changes to participate.
+declare global {
+  namespace Express {
+    interface Request {
+      sessionId: string;
+    }
+  }
+}
+app.use((req, res, next) => {
+  const cookies = Object.fromEntries(
+    (req.headers.cookie ?? "").split(";").map((pair) => {
+      const [key, ...rest] = pair.trim().split("=");
+      return [key, decodeURIComponent(rest.join("="))];
+    }),
+  );
+  let sid = cookies[SESSION_COOKIE];
+  if (!sid) {
+    sid = crypto.randomUUID();
+    res.cookie(SESSION_COOKIE, sid, { httpOnly: true, sameSite: "lax" });
+  }
+  req.sessionId = sid;
+  next();
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -35,14 +63,14 @@ app.get("/api/models", (_req, res) => {
   res.json({ models: CURATED_MODELS, defaultModel: DEFAULT_MODEL });
 });
 
-app.post("/api/reset", (_req, res) => {
-  resetSession();
+app.post("/api/reset", (req, res) => {
+  resetSession(req.sessionId);
   res.json({ ok: true });
 });
 
 // Debug panel's "raw history" tab: the exact messages array sent to the API.
-app.get("/api/history", (_req, res) => {
-  const { messages, pendingAsk } = getSession();
+app.get("/api/history", (req, res) => {
+  const { messages, pendingAsk } = getSession(req.sessionId);
   res.json({ messages, pendingAsk });
 });
 
@@ -50,8 +78,8 @@ app.get("/api/history", (_req, res) => {
 // readable error event in the stream, not a crash at server start.
 let llmClient: OpenAI | null = null;
 
-// Single in-memory session ⇒ one agent turn at a time.
-let turnInProgress = false;
+// One agent turn at a time per session — different users can run concurrently.
+const turnsInProgress = new Set<string>();
 
 app.post("/api/chat", async (req, res) => {
   const { prompt, model } = req.body as { prompt?: string; model?: string };
@@ -59,26 +87,26 @@ app.post("/api/chat", async (req, res) => {
     res.status(400).json({ error: "prompt is required" });
     return;
   }
-  if (turnInProgress) {
+  if (turnsInProgress.has(req.sessionId)) {
     res.status(409).json({ error: "a turn is already running" });
     return;
   }
 
-  turnInProgress = true;
+  turnsInProgress.add(req.sessionId);
   res.setHeader("Content-Type", "application/x-ndjson");
   res.setHeader("Cache-Control", "no-cache");
   const emit = (event: unknown) => res.write(`${JSON.stringify(event)}\n`);
 
   try {
     llmClient ??= createLlmClient();
-    const turn = runAgentTurn(llmClient, getSession(), prompt, model ?? DEFAULT_MODEL);
+    const turn = runAgentTurn(llmClient, getSession(req.sessionId), prompt, model ?? DEFAULT_MODEL);
     for await (const event of turn) {
       emit(event);
     }
   } catch (err) {
     emit({ type: "error", message: (err as Error).message });
   } finally {
-    turnInProgress = false;
+    turnsInProgress.delete(req.sessionId);
     res.end();
   }
 });

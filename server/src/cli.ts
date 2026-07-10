@@ -10,6 +10,8 @@ import { runAgentTurn } from "./agent/loop";
  * fastest way to A/B models:  npm run cli --workspace server -- [model-id]
  */
 
+const CLI_SESSION_ID = "cli";
+
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
 const cyan = (s: string) => `\x1b[36m${s}\x1b[0m`;
 const red = (s: string) => `\x1b[31m${s}\x1b[0m`;
@@ -73,12 +75,12 @@ async function main(): Promise<void> {
     if (!input) continue;
     if (input === "/exit") break;
     if (input === "/reset") {
-      resetSession();
+      resetSession(CLI_SESSION_ID);
       console.log(dim("session reset"));
       continue;
     }
     if (input === "/spec") {
-      console.log(JSON.stringify(getSession().spec, null, 2));
+      console.log(JSON.stringify(getSession(CLI_SESSION_ID).spec, null, 2));
       continue;
     }
     if (input.startsWith("/model ")) {
@@ -88,7 +90,7 @@ async function main(): Promise<void> {
     }
 
     try {
-      for await (const event of runAgentTurn(client, getSession(), input, model)) {
+      for await (const event of runAgentTurn(client, getSession(CLI_SESSION_ID), input, model)) {
         printEvent(event);
       }
     } catch (err) {
