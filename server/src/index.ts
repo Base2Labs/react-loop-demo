@@ -40,6 +40,9 @@ declare global {
   }
 }
 app.use((req, res, next) => {
+  // Health probes don't keep cookies, so skip them — otherwise every check
+  // would mint and immediately abandon a new session.
+  if (req.path === "/api/health") return next();
   const cookies = Object.fromEntries(
     (req.headers.cookie ?? "").split(";").map((pair) => {
       const [key, ...rest] = pair.trim().split("=");

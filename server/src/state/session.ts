@@ -19,19 +19,41 @@ function createSession(): Session {
   return { messages: [], spec: { sections: [] }, pendingAsk: null };
 }
 
-const sessions = new Map<string, Session>();
+/** Idle sessions are swept so an unbounded stream of session ids (e.g. a
+ * health-checker that doesn't keep cookies) can't grow this map forever. */
+const IDLE_TTL_MS = 30 * 60 * 1000;
+const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
+
+interface Entry {
+  session: Session;
+  lastSeen: number;
+}
+
+const sessions = new Map<string, Entry>();
 
 export function getSession(id: string): Session {
-  let session = sessions.get(id);
-  if (!session) {
-    session = createSession();
-    sessions.set(id, session);
+  let entry = sessions.get(id);
+  if (!entry) {
+    entry = { session: createSession(), lastSeen: Date.now() };
+    sessions.set(id, entry);
+  } else {
+    entry.lastSeen = Date.now();
   }
-  return session;
+  return entry.session;
 }
 
 export function resetSession(id: string): Session {
   const session = createSession();
-  sessions.set(id, session);
+  sessions.set(id, { session, lastSeen: Date.now() });
   return session;
 }
+
+function sweepIdleSessions(): void {
+  const cutoff = Date.now() - IDLE_TTL_MS;
+  for (const [id, entry] of sessions) {
+    if (entry.lastSeen < cutoff) sessions.delete(id);
+  }
+}
+
+const sweepTimer = setInterval(sweepIdleSessions, SWEEP_INTERVAL_MS);
+sweepTimer.unref();
