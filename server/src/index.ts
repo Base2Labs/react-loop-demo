@@ -10,20 +10,40 @@ import { runAgentTurn } from "./agent/loop";
 
 const PORT = Number(process.env.PORT) || 3001;
 const SESSION_COOKIE = "sid";
+const AUTH_COOKIE = "authed";
 
 const app = express();
 app.use(express.json());
+
+const parseCookies = (header: string | undefined) =>
+  Object.fromEntries(
+    (header ?? "").split(";").map((pair) => {
+      const [key, ...rest] = pair.trim().split("=");
+      return [key, decodeURIComponent(rest.join("="))];
+    }),
+  );
 
 // Gates everything except the k8s health probe, which sends no credentials.
 // Only active when BASIC_AUTH_USER/PASS are set, so local dev is unaffected.
 const authUser = process.env.BASIC_AUTH_USER;
 const authPass = process.env.BASIC_AUTH_PASS;
 if (authUser && authPass) {
+  // A page load fires several requests (document, JS bundle, on-mount API
+  // calls) in parallel. If each had to pass the WWW-Authenticate challenge
+  // on its own, whichever ones race ahead of the browser's credential cache
+  // trigger their own native login prompt, so the user sees it twice. This
+  // signed cookie lets every request after the first skip the challenge.
+  const authSecret = crypto.randomBytes(32);
+  const authToken = crypto.createHmac("sha256", authSecret).update(`${authUser}:${authPass}`).digest("hex");
   app.use((req, res, next) => {
     if (req.path === "/api/health") return next();
+    if (parseCookies(req.headers.cookie)[AUTH_COOKIE] === authToken) return next();
     const [, encoded] = (req.headers.authorization ?? "").split(" ");
     const [user, pass] = Buffer.from(encoded ?? "", "base64").toString().split(":");
-    if (user === authUser && pass === authPass) return next();
+    if (user === authUser && pass === authPass) {
+      res.cookie(AUTH_COOKIE, authToken, { httpOnly: true, sameSite: "lax" });
+      return next();
+    }
     res.set("WWW-Authenticate", 'Basic realm="react-loop-demo"');
     res.status(401).send("Authentication required");
   });
@@ -43,13 +63,7 @@ app.use((req, res, next) => {
   // Health probes don't keep cookies, so skip them — otherwise every check
   // would mint and immediately abandon a new session.
   if (req.path === "/api/health") return next();
-  const cookies = Object.fromEntries(
-    (req.headers.cookie ?? "").split(";").map((pair) => {
-      const [key, ...rest] = pair.trim().split("=");
-      return [key, decodeURIComponent(rest.join("="))];
-    }),
-  );
-  let sid = cookies[SESSION_COOKIE];
+  let sid = parseCookies(req.headers.cookie)[SESSION_COOKIE];
   if (!sid) {
     sid = crypto.randomUUID();
     res.cookie(SESSION_COOKIE, sid, { httpOnly: true, sameSite: "lax" });
